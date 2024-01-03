@@ -14,10 +14,7 @@ const RenderItem = ({item}) => {
     try {
       console.log('Connecting to device', address);
       let stringAddress = address.toString();
-
-      const device = await RNBluetoothClassic.pairDevice({
-        address: stringAddress,
-      });
+      const device = await RNBluetoothClassic.connectToDevice(stringAddress);
       console.log('Connected to device', device);
       // Handle successful connection
     } catch (error) {

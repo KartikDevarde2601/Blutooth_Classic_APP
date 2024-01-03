@@ -1,9 +1,11 @@
 import {combineReducers} from '@reduxjs/toolkit';
 import {configureStore} from '@reduxjs/toolkit';
-import devicesReducer from './reducers/devices';
+import devicesReducer from './Slices/devices.Slice';
+import bluetoothStateReducer from './Slices/blutoothState.Slice';
 
 const rootReducer = combineReducers({
   devices: devicesReducer,
+  bluetoothState: bluetoothStateReducer,
 });
 
 const store = configureStore({

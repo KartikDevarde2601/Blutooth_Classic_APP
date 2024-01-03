@@ -8,55 +8,23 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import RNBluetoothClassic, {
   BluetoothDevice,
 } from 'react-native-bluetooth-classic';
-import {Platform, PermissionsAndroid} from 'react-native';
-import renderItem from '../components/renderItem.component';
-import {useDispatch, useSelector} from 'react-redux';
-import {setDevices} from '../redux/reducers/devices.js';
 import RenderItem from '../components/renderItem.component';
 
-const requestMultiple = async permissions => {
-  if (Platform.OS === 'android') {
-    try {
-      const results = await PermissionsAndroid.requestMultiple(permissions);
-
-      const allPermissionsGranted = Object.values(results).every(
-        result => result === PermissionsAndroid.RESULTS.GRANTED,
-      );
-
-      return allPermissionsGranted;
-    } catch (err) {
-      console.error(err);
-    }
-  }
-};
-
-const ACCESS_FINE_LOCATION = 'android.permission.ACCESS_FINE_LOCATION';
-const BLUETOOTH_CONNECT = 'android.permission.BLUETOOTH_CONNECT';
-const BLUETOOTH_SCAN = 'android.permission.BLUETOOTH_SCAN';
-const BLUETOOTH_ADVERTISE = 'android.permission.BLUETOOTH_ADVERTISE';
-
-const permissionsToRequest = [
-  ACCESS_FINE_LOCATION,
-  BLUETOOTH_CONNECT,
-  BLUETOOTH_SCAN,
-  BLUETOOTH_ADVERTISE,
-];
-
-requestMultiple(permissionsToRequest)
-  .then(results => {
-    console.log(results);
-  })
-  .catch(error => {
-    console.error(`error requesting permissions: ${error}`);
-  });
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchPairedDevices} from '../redux/Slices/devices.Slice';
 
 const ConnectionScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false);
-  const [devices, setDevices] = useState([]);
+
+  const state = useSelector(state => state.devices);
+  console.log(`devicesState : ${state.devices}`);
+  console.log(`isLoading:  ${state.isLoading}`);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function checkBluetoothEnabled() {
@@ -64,7 +32,7 @@ const ConnectionScreen = () => {
       setIsEnabled(enabled);
       console.log(`phone Bluetooth is ON/OFF: ${enabled}`);
 
-      if (!enabled) {
+      if (!isEnabled) {
         ToastAndroid.show(
           'Bluetooth is OFF, please turn it ON',
           ToastAndroid.SHORT,
@@ -72,13 +40,12 @@ const ConnectionScreen = () => {
       }
     }
 
-    const PairDevice = async () => {
-      const devices = await RNBluetoothClassic.getBondedDevices();
-      setDevices(devices);
-    };
+    if (isEnabled) {
+      console.log('fetchPairdevices call');
+      dispatch(fetchPairedDevices());
+    }
 
     checkBluetoothEnabled();
-    PairDevice();
   }, []);
 
   const startScanning = async () => {
@@ -107,13 +74,19 @@ const ConnectionScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.listContainer}>
-          {isEnabled && (
-            <FlatList
-              style={{flex: 1}}
-              data={devices}
-              keyExtractor={item => item.id}
-              renderItem={RenderItem}
-            />
+          {state.isLoading ? (
+            <ActivityIndicator size="large" color="blue" />
+          ) : state.isError ? (
+            <Text style={{fontSize: 20, color: 'blue'}}>Error occurred</Text>
+          ) : (
+            state.devices && (
+              <FlatList
+                style={{flex: 1}}
+                data={state.devices}
+                keyExtractor={item => item.id}
+                renderItem={RenderItem}
+              />
+            )
           )}
         </View>
       </View>
