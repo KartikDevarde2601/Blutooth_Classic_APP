@@ -37,7 +37,7 @@ export default function App() {
   useEffect(() => {
     requestMultiple(permissionsToRequest)
       .then(results => {
-        console.log(results);
+        console.log(`permission results ${results}`);
       })
       .catch(error => {
         console.error(`error requesting permissions: ${error}`);

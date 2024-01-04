@@ -1,13 +1,21 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import RNBluetoothClassic from 'react-native-bluetooth-classic';
 
-//action
 export const fetchPairedDevices = createAsyncThunk(
   'fetchPairedDevices',
   async () => {
     console.log('fetchPairDevices call');
     const devices = await RNBluetoothClassic.getBondedDevices();
-    return devices;
+    console.log('fetchPairDevices complete');
+    console.log(devices);
+    const filterDevice = devices.map(device => ({
+      id: device.id,
+      name: device.name,
+      address: device.address,
+      majorClass: device.deviceClass.majorClass,
+    }));
+    console.log(`filterDevice: ${JSON.stringify(filterDevice)}`);
+    return filterDevice;
   },
 );
 

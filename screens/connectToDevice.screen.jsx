@@ -20,11 +20,15 @@ import {fetchPairedDevices} from '../redux/Slices/devices.Slice';
 
 const ConnectionScreen = () => {
   const [isEnabled, setIsEnabled] = useState(false);
-
   const state = useSelector(state => state.devices);
-  console.log(`devicesState : ${state.devices}`);
-  console.log(`isLoading:  ${state.isLoading}`);
   const dispatch = useDispatch();
+
+  const pairDevice = () => {
+    if (isEnabled) {
+      dispatch(fetchPairedDevices());
+      console.log('action dispatch');
+    }
+  };
 
   useEffect(() => {
     async function checkBluetoothEnabled() {
@@ -32,7 +36,9 @@ const ConnectionScreen = () => {
       setIsEnabled(enabled);
       console.log(`phone Bluetooth is ON/OFF: ${enabled}`);
 
-      if (!isEnabled) {
+      if (enabled) {
+        pairDevice();
+      } else {
         ToastAndroid.show(
           'Bluetooth is OFF, please turn it ON',
           ToastAndroid.SHORT,
@@ -40,13 +46,8 @@ const ConnectionScreen = () => {
       }
     }
 
-    if (isEnabled) {
-      console.log('fetchPairdevices call');
-      dispatch(fetchPairedDevices());
-    }
-
     checkBluetoothEnabled();
-  }, []);
+  }, [isEnabled]);
 
   const startScanning = async () => {
     try {

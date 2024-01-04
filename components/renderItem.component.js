@@ -26,7 +26,7 @@ const RenderItem = ({item}) => {
     <TouchableOpacity onPress={() => connectToDevice(item.address)}>
       <View style={styles.container}>
         <View style={styles.icon}>
-          {item.deviceClass.majorClass === 1024 ? (
+          {item.majorClass === 1024 ? (
             <FontAwesomeIcon icon={faHeadset} size={25} color="#808080" />
           ) : (
             <FontAwesomeIcon icon={faMicrochip} size={25} color="#808080" />
